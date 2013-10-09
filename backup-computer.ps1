@@ -34,11 +34,17 @@ else {
    exit
 }
  
-# Run your code that needs to be elevated here
+# From this point running Backup in Elevated mode
 
+# Creating backup target as UNC path if started from disk
 $invocation = (Get-Variable MyInvocation).Value
 $directorypath = Split-Path $invocation.MyCommand.Path
-$backuptarget = ("\\localhost\" + $directorypath.replace(":","$"))
+if (!($directorypath.StartsWith("\\"))) {
+    $backuptarget = ("\\$env:computername\" + $directorypath.replace(":","$"))
+}
+else {
+    $backuptarget = $directorypath
+}
 
 $date = get-date -UFormat %Y-%m-%d
 $comp = gc env:computername
