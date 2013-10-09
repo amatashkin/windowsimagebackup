@@ -64,12 +64,15 @@ catch [exception] {
 
 # Backup PC
 $start = Get-Date
-"Running backup."
-"Started: $start"
 $process = Start-Process -Wait wbadmin.exe -ArgumentList "start backup -backuptarget:$backuptarget -allCritical -include:$include -quiet" -PassThru -NoNewWindow -RedirectStandardOutput $log
 $code = $process.exitcode 
+"Backup started: $start `r`n"
+$output = $output + "==================================== `r`n"
+$output = $output + "Backup started: $start `r`n"
 $end = Get-Date
-"Ended: $end"
+"Backup ended: $end `r`n"
+
+Out-File -Append -FilePath $log -InputObject $output -Encoding ascii
 
 if ($code -eq 0 ) {
     $result = $result + "Backup COMPLETE on $comp, user $user `r`n"
@@ -82,8 +85,11 @@ else {
     $status = "BAD" 
 }
 
-$result = $result + "Started: $start `r`nEnded: $end `r`n"
-Out-File -Append -FilePath $log -InputObject $result -Encoding ascii
+$result = $result + "Backup started: $start `r`n"
+$result = $result + "Backup ended: $end `r`n"
+$output = $output + $result
+$output = $output + "==================================== `r`n"
+Out-File -Append -FilePath $log -InputObject $output -Encoding ascii
 
 # $loghtmlfile = $log + '.html'
 # $File = Get-Content $log
