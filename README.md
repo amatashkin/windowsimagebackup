@@ -1,6 +1,6 @@
-backup-now
-==========
+WindowsImageBackup
+==================
 
-Starts Windows one time backup to current folder.
+Starts Windows Backup to current disk or network share.
 
-Gets current folder, creates UNC path and starts Windows Backup with drive C: and include criticals
+Must be placed in [drive]:\WindowsImageBackup or on \\share\folder\WindowsImageBackup\
