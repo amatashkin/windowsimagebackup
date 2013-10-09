@@ -44,32 +44,41 @@ else {
 }
  
 # From this point running Backup in Elevated mode
-
-# Creating backup target as UNC path if started from disk
-$invocation = (Get-Variable MyInvocation).Value
-$directorypath = Split-Path $invocation.MyCommand.Path
-if (!($directorypath.StartsWith("\\"))) {
-    $backuptarget = ("\\$env:computername\" + $directorypath.replace(":","$"))
-}
-else {
-    $backuptarget = $directorypath
-}
-
+# Set variables
 $date = get-date -UFormat %Y-%m-%d
 $comp = gc env:computername
 $user = gc env:username
-$logName = $backuptarget + '\' + $date + '_' + $comp + '.log'
-$result = ""
+
+# Get current directory
+$invocation = (Get-Variable MyInvocation).Value
+$directorypath = Split-Path $invocation.MyCommand.Path
+$logName = Join-Path $directorypath ($date + '_' + $comp + '.log')
 
 # Create log file
 try {
     if (!(Test-Path $logName)) {
-        New-Item -Path $logName -ItemType File -ErrorAction Stop
+        New-Item -Path $logName -ItemType File -ErrorAction Stop | Out-Null
+        $output = $output + ("Created log file $logName" | Write-LogFile $logName) + "`r`n"
     }
 }
 catch [exception] {
     $output = $output + ("Computer $comp FAILED to create log file" | Write-LogFile $logName) + "`r`n"
 }
+
+# Check directory and set BackupTarget.
+# UNC if running from network, Drive letter if from localdisk.
+$directory = Split-Path $invocation.MyCommand.Path -Leaf
+if (!($directory) -ne "WindowsImageBackup") {
+    "Backup FAILED. Script must be started from WindowsImageBackup folder." | Write-LogFile $logName
+    exit 10
+}
+if (!($directorypath.StartsWith("\\"))) {
+    $backuptarget = Split-Path $directorypath -Qualifier
+}
+else {
+    $backuptarget = Split-Path $directorypath -Parent
+}
+
 
 # Backup PC
 $start = Get-Date
