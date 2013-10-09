@@ -2,6 +2,15 @@
 
 $include = 'C:'
 
+function Write-LogFile([string]$logFileName) {
+    Process {
+        $_
+        $dt = Get-Date -UFormat "%Y-%m-%d %H:%M:%S"
+        $str = $dt + " " + $_
+        $str | Out-File -FilePath $logFileName -Append -Encoding ascii
+    }
+}
+
 # Get the ID and security principal of the current user account
 $myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal = New-Object System.Security.Principal.WindowsPrincipal($myWindowsID)
@@ -49,24 +58,24 @@ else {
 $date = get-date -UFormat %Y-%m-%d
 $comp = gc env:computername
 $user = gc env:username
-$log = $backuptarget + '\' + $date + '_' + $comp + '.log'
+$logName = $backuptarget + '\' + $date + '_' + $comp + '.log'
 $result = ""
 
 # Create log file
 try {
-    if (!(Test-Path $log)) {
-        New-Item -Path $log -ItemType File -ErrorAction Stop
+    if (!(Test-Path $logName)) {
+        New-Item -Path $logName -ItemType File -ErrorAction Stop
     }
 }
 catch [exception] {
-    $result = $result + "Computer $comp FAILED to create log file `r`n"
+    $output = $output + ("Computer $comp FAILED to create log file" | Write-LogFile $logName) + "`r`n"
 }
 
 # Backup PC
 $start = Get-Date
-"Backup started: $start `r`n"
-$output = $output + "==================================== `r`n"
-$output = $output + "Backup started: $start `r`n"
+"Backup started: $start"
+$output = $output + ("====================================" | Write-LogFile $logName) + "`r`n"
+$output = $output + ("Backup started: $start" | Write-LogFile $logName) + "`r`n"
 
 $wbprocinfo = New-object System.Diagnostics.ProcessStartInfo 
 $wbprocinfo.CreateNoWindow = $true 
@@ -91,28 +100,22 @@ while (!($wbprocess.StandardOutput.EndOfStream)) {
                  -Status "$operation" `
                  -PercentComplete $percent `
                  -CurrentOperation "$percent% complete"
-  $output = $output + $line + "`r`n"
+  $output = $output + ($line | Write-LogFile $logName) + "`r`n"
 }
 
 $code = $wbprocess.ExitCode 
 $end = Get-Date
-"Backup ended: $end `r`n"
-
-Out-File -Append -FilePath $log -InputObject $output -Encoding ascii
+# "Backup ended: $end `r`n"
+$output = $output + ("Backup ended: $end" | Write-LogFile $logName) + "`r`n"
 
 if ($code -eq 0 ) {
-    $result = $result + "Backup COMPLETE on $comp, user $user `r`n"
-    $result
+    $output = $output + ("Backup COMPLETE on $comp, user $user" | Write-LogFile $logName) + "`r`n"
     $status = "GOOD"
 }
 else { 
-    $result = $result + "Backup FAILED on $comp, user $user `r`n"
-    $result
+    $output = $output + ("Backup FAILED on $comp, user $user" | Write-LogFile $logName) + "`r`n"
     $status = "BAD" 
 }
 
-$result = $result + "Backup started: $start `r`n"
-$result = $result + "Backup ended: $end `r`n"
-$output = $output + $result
-$output = $output + "==================================== `r`n"
-Out-File -Append -FilePath $log -InputObject $output -Encoding ascii
+$output = $output + ($result | Write-LogFile $logName) + "`r`n"
+$output = $output + ("====================================" | Write-LogFile $logName) + "`r`n"
