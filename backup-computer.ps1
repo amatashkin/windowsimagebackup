@@ -81,6 +81,20 @@ $wbprocess = New-Object System.Diagnostics.Process
 $wbprocess.StartInfo = $wbprocinfo
 [void]$wbprocess.Start()
 
+$operation = "Processing..."
+$percent = "0"
+$line = ""
+while (!($wbprocess.StandardOutput.EndOfStream)) {
+  $line = $wbprocess.StandardOutput.ReadLine()
+  if ($line) { $operation = $line }
+  $matchPercent = $line -match "\d+(?=\%)"
+  if ($matchPercent) { $percent = $Matches[0] }
+  Write-Progress -Activity "Backing up computer $comp" `
+                 -Status "$operation" `
+                 -PercentComplete $percent `
+                 -CurrentOperation "$percent% complete"
+  $output = $output + $line + "`r`n"
+}
 
 # $wbprocess.WaitForExit() 
 $code = $wbprocess.ExitCode 
