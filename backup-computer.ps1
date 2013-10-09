@@ -67,7 +67,6 @@ $start = Get-Date
 "Backup started: $start `r`n"
 $output = $output + "==================================== `r`n"
 $output = $output + "Backup started: $start `r`n"
-# $process = Start-Process -Wait wbadmin.exe -ArgumentList "start backup -backuptarget:$backuptarget -allCritical -include:$include -quiet" -PassThru -NoNewWindow -RedirectStandardOutput $log
 
 $wbprocinfo = New-object System.Diagnostics.ProcessStartInfo 
 $wbprocinfo.CreateNoWindow = $true 
@@ -75,7 +74,6 @@ $wbprocinfo.UseShellExecute = $false
 $wbprocinfo.RedirectStandardOutput = $true 
 $wbprocinfo.RedirectStandardError = $true 
 $wbprocinfo.FileName = 'wbadmin.exe' 
-# $wbprocinfo.Arguments = @("get status") 
 $wbprocinfo.Arguments = @("start backup -backuptarget:$backuptarget -allCritical -include:$include -quiet") 
 $wbprocess = New-Object System.Diagnostics.Process 
 $wbprocess.StartInfo = $wbprocinfo
@@ -96,7 +94,6 @@ while (!($wbprocess.StandardOutput.EndOfStream)) {
   $output = $output + $line + "`r`n"
 }
 
-# $wbprocess.WaitForExit() 
 $code = $wbprocess.ExitCode 
 $end = Get-Date
 "Backup ended: $end `r`n"
@@ -119,14 +116,3 @@ $result = $result + "Backup ended: $end `r`n"
 $output = $output + $result
 $output = $output + "==================================== `r`n"
 Out-File -Append -FilePath $log -InputObject $output -Encoding ascii
-
-# $loghtmlfile = $log + '.html'
-# $File = Get-Content $log
-# $FileLine = @()
-# Foreach ($Line in $File) {
-#     $MyObject = New-Object -TypeName PSObject
-#     Add-Member -InputObject $MyObject -Type NoteProperty -Name backupstatus -Value $Line
-#     $FileLine += $MyObject
-# }
-# $FileLine | ConvertTo-Html -Property backupstatus | Out-File $loghtmlfile
-# $loghtml = gc $loghtmlfile
