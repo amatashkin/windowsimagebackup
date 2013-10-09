@@ -64,11 +64,26 @@ catch [exception] {
 
 # Backup PC
 $start = Get-Date
-$process = Start-Process -Wait wbadmin.exe -ArgumentList "start backup -backuptarget:$backuptarget -allCritical -include:$include -quiet" -PassThru -NoNewWindow -RedirectStandardOutput $log
-$code = $process.exitcode 
 "Backup started: $start `r`n"
 $output = $output + "==================================== `r`n"
 $output = $output + "Backup started: $start `r`n"
+# $process = Start-Process -Wait wbadmin.exe -ArgumentList "start backup -backuptarget:$backuptarget -allCritical -include:$include -quiet" -PassThru -NoNewWindow -RedirectStandardOutput $log
+
+$wbprocinfo = New-object System.Diagnostics.ProcessStartInfo 
+$wbprocinfo.CreateNoWindow = $true 
+$wbprocinfo.UseShellExecute = $false 
+$wbprocinfo.RedirectStandardOutput = $true 
+$wbprocinfo.RedirectStandardError = $true 
+$wbprocinfo.FileName = 'wbadmin.exe' 
+# $wbprocinfo.Arguments = @("get status") 
+$wbprocinfo.Arguments = @("start backup -backuptarget:$backuptarget -allCritical -include:$include -quiet") 
+$wbprocess = New-Object System.Diagnostics.Process 
+$wbprocess.StartInfo = $wbprocinfo
+[void]$wbprocess.Start()
+
+
+# $wbprocess.WaitForExit() 
+$code = $wbprocess.ExitCode 
 $end = Get-Date
 "Backup ended: $end `r`n"
 
