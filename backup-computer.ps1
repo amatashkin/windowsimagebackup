@@ -1,6 +1,6 @@
 # Script will backup computer to current folder
 
-$include = 'C:'
+$include = ''
 
 function Write-LogFile([string]$logFileName) {
     Process {
@@ -50,6 +50,9 @@ $date = get-date -UFormat %Y-%m-%d
 $comp = gc env:computername
 $user = gc env:username
 
+# Set include parameter if assigned 
+if ($include) {$include = "-include:$include"}
+
 # Get current directory
 $invocation = (Get-Variable MyInvocation).Value
 $directorypath = Split-Path $invocation.MyCommand.Path
@@ -93,7 +96,7 @@ $wbprocinfo.UseShellExecute = $false
 $wbprocinfo.RedirectStandardOutput = $true 
 $wbprocinfo.RedirectStandardError = $true 
 $wbprocinfo.FileName = 'wbadmin.exe' 
-$wbprocinfo.Arguments = @("start backup -backuptarget:$backuptarget -allCritical -include:$include -quiet") 
+$wbprocinfo.Arguments = @("start backup -backuptarget:$backuptarget -allCritical $include -quiet") 
 $wbprocess = New-Object System.Diagnostics.Process 
 $wbprocess.StartInfo = $wbprocinfo
 [void]$wbprocess.Start()
