@@ -22,7 +22,7 @@ $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
 if ($myWindowsPrincipal.IsInRole($adminRole)) {
     # We are running "as Administrator" - so change the title and background color to indicate this
     $Host.UI.RawUI.WindowTitle = $myInvocation.MyCommand.Definition + "(Elevated)"
-    $Host.UI.RawUI.BackgroundColor = "DarkBlue"
+    # $Host.UI.RawUI.BackgroundColor = "DarkBlue"
     clear-host
 }
 else {
@@ -106,7 +106,7 @@ while (!($wbprocess.StandardOutput.EndOfStream)) {
   if ($line) { $operation = $line }
   $matchPercent = $line -match "\d+(?=\%)"
   if ($matchPercent) { $percent = $Matches[0] }
-  Write-Progress -Activity "Backing up computer $comp" `
+  Write-Progress -Activity "Backing up computer $comp to $directorypath" `
                  -Status "$operation" `
                  -PercentComplete $percent `
                  -CurrentOperation "$percent% complete"
