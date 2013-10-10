@@ -67,8 +67,8 @@ catch [exception] {
 
 # Check directory and set BackupTarget.
 # UNC if running from network, Drive letter if from localdisk.
-$directory = Split-Path $invocation.MyCommand.Path -Leaf
-if (!($directory) -ne "WindowsImageBackup") {
+$directory = Split-Path $directorypath -Leaf
+if (($directory) -ne "WindowsImageBackup") {
     "Backup FAILED. Script must be started from WindowsImageBackup folder." | Write-LogFile $logName
     exit 10
 }
