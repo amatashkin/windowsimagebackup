@@ -126,5 +126,4 @@ else {
     $status = "BAD" 
 }
 
-$output = $output + ($result | Write-LogFile $logName) + "`r`n"
 $output = $output + ("====================================" | Write-LogFile $logName) + "`r`n"
