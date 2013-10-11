@@ -21,18 +21,23 @@ function Write-LogFile([string]$logFileName) {
 $myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal = New-Object System.Security.Principal.WindowsPrincipal($myWindowsID)
  
-# Get the security principal for the Administrator role
+# Get the security principal for the roles of Administrator, Backup Operator
 $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
- 
+$backupRole = [System.Security.Principal.WindowsBuiltInRole]::BackupOperator
+
 # Check to see if we are currently running "as Administrator"
-if ($myWindowsPrincipal.IsInRole($adminRole)) {
-    # We are running "as Administrator" - so change the title and background color to indicate this
-    $Host.UI.RawUI.WindowTitle = $myInvocation.MyCommand.Definition + "(Elevated)"
-    # $Host.UI.RawUI.BackgroundColor = "DarkBlue"
+if ($myWindowsPrincipal.IsInRole($backupRole)) {
+    # We are running "as Backup Operator" - so change the title to indicate this
+    $Host.UI.RawUI.WindowTitle = $myInvocation.MyCommand.Definition + "(Backup Operator)"
+    clear-host
+}
+elseif ($myWindowsPrincipal.IsInRole($adminRole)) {
+    # We are running "as Administrator" - so change the title to indicate this
+    $Host.UI.RawUI.WindowTitle = $myInvocation.MyCommand.Definition + "(Administrator Elevated)"
     clear-host
 }
 else {
-    # We are not running "as Administrator" - so relaunch as administrator
+    # We are not running "as Administrator" nor "as Backup Operator" - so relaunch as administrator
 
     # Create a new process object that starts PowerShell
     $newProcess = new-object System.Diagnostics.ProcessStartInfo
