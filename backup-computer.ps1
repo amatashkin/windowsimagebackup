@@ -2,6 +2,12 @@
 
 $include = ''
 
+# Set variables
+$date = get-date -UFormat %Y-%m-%d
+$comp = gc env:computername
+$user = gc env:username
+
+
 function Write-LogFile([string]$logFileName) {
     Process {
         $_
@@ -45,10 +51,6 @@ else {
 }
  
 # From this point running Backup in Elevated mode
-# Set variables
-$date = get-date -UFormat %Y-%m-%d
-$comp = gc env:computername
-$user = gc env:username
 
 # Set include parameter if assigned 
 if ($include) {$include = "-include:$include"}
@@ -82,7 +84,6 @@ if (!($directorypath.StartsWith("\\"))) {
 else {
     $backuptarget = Split-Path $directorypath -Parent
 }
-
 
 # Backup PC
 $start = Get-Date
